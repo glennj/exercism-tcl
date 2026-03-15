@@ -1,6 +1,19 @@
 #!/usr/bin/env tclsh
 
 # This script runs in the tcl-test-runner!
+# Test locally with:
+# ```
+# $ cat > Dockerfile
+# FROM exercism/tcl-test-runner:latest
+# COPY . .
+# ENTRYPOINT ["bin/verify-in-test-runner.tcl"]
+# ^D
+#
+# $ docker build -t tcl-verifier .
+#
+# $ pr_number=432
+# $ docker run tcl-verifier $pr_number
+#
 
 package require json
 
@@ -65,7 +78,7 @@ proc get_dirs {pr_number} {
     set json_string [exec wget --quiet --output-document=- $url]
     set file_info [::json::json2dict $json_string]
 
-    set regex {(exercises/(?:concept|practice)/[^/]+)/.*(?:tcl|test)$}
+    set regex {(exercises/(?:concept|practice)/[^/]+)/.*(?:tcl|test|toml)$}
     set exercise_dirs [lmap item $file_info {
         set filename [dict get $item filename]
         if {[regexp $regex $filename -> dir]} {
