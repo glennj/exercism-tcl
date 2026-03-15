@@ -65,7 +65,7 @@ proc get_dirs {pr_number} {
     set json_string [exec wget --quiet --output-document=- $url]
     set file_info [::json::json2dict $json_string]
 
-    set regex {(exercises/(?:concept|practice)/[^/]+)/.*(?:tcl|test)$}
+    set regex {(exercises/(?:concept|practice)/[^/]+)/.*(?:tcl|test|toml)$}
     set exercise_dirs [lmap item $file_info {
         set filename [dict get $item filename]
         if {[regexp $regex $filename -> dir]} {
