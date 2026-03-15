@@ -1,6 +1,19 @@
 #!/usr/bin/env tclsh
 
 # This script runs in the tcl-test-runner!
+# Test locally with:
+# ```
+# $ cat > Dockerfile
+# FROM exercism/tcl-test-runner:latest
+# COPY . .
+# ENTRYPOINT ["bin/verify-in-test-runner.tcl"]
+# ^D
+#
+# $ docker build -t tcl-verifier .
+#
+# $ pr_number=432
+# $ docker run tcl-verifier $pr_number
+#
 
 package require json
 
