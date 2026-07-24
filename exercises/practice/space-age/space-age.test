@@ -1,12 +1,20 @@
 #!/usr/bin/env tclsh
+# generated: 2026-07-24T03:45:50Z
 package require tcltest
 namespace import ::tcltest::*
 source testHelpers.tcl
 
+# Uncomment next line to view test durations.
+#configure -verbose {body error usec}
+
 ############################################################
 source "space-age.tcl"
 
-# Don't worry about rounding your result, we'll do it:
+#############################################################
+# Convenience function to set the precision of a real number.
+proc roundTo {precision number} {
+    return [format {%.*f} $precision $number]
+}
 
 test space-age-1 "age on Earth" -body {
     roundTo 2 [onEarth 1000000000]

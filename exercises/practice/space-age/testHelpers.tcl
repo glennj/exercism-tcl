@@ -19,8 +19,3 @@ proc cleanupTests {} {
     if {$failed} then {exit 1}
 }
 
-#############################################################
-# Convenience function to set the precision of a real number.
-proc roundTo {precision number} {
-    return [format {%.*f} $precision $number]
-}

@@ -1,0 +1,31 @@
+!* variableSubst true
+$header
+!* variableSubst false
+#############################################################
+# Convenience function to set the precision of a real number.
+proc roundTo {precision number} {
+    return [format {%.*f} $precision $number]
+}
+
+!* variableSubst true
+!* commandSubst true
+! set i 0
+! foreach case $cases {
+!   set test_id "${slug}-[incr i]"
+!   if {$i > 1} {
+skip $test_id
+!   }
+test $test_id [testTitle $case] -body {
+!   set cmd [format {on%s %d} [dict get $case input planet] [dict get $case input seconds]]
+!* commandSubst false
+    roundTo 2 [$cmd]
+!* commandSubst true
+!   if {[dict exists $case expected error]} {
+} -returnCodes error -result [tclString [dict get $case expected error]]
+!   } else {
+} -returnCodes ok -result [dict get $case expected]
+!   }
+
+! }
+
+$footer
