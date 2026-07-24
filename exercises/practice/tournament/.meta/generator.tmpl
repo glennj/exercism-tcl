@@ -1,0 +1,45 @@
+!* variableSubst true
+!* commandSubst true
+$header
+!#
+!* variableSubst false
+!* commandSubst false
+# Write a list of lines to a tempory file.
+# Returns the temp file name.
+proc writeFile {lines} {
+    set fh [file tempfile filename]
+    puts $fh [join $lines \n]
+    close $fh
+    return $filename
+}
+!* variableSubst true
+!* commandSubst true
+
+
+! set i 0
+! foreach case $cases {
+!   set inputData [asList [dict get $case input rows] -strings y -multiline y -indent 2]
+!   set resultList [asList [dict get $case expected] -strings y -multiline y -indent 1]
+!   set test_id "${slug}-[incr i]"
+!   if {$i > 1} {
+skip $test_id
+!   }
+test $test_id [testTitle $case] -setup {
+!* commandSubst false
+    set filename [writeFile $inputData]
+!* commandSubst true
+} -body {
+!* variableSubst false
+    tournamentResults $filename
+!* variableSubst true
+} -cleanup {
+!* variableSubst false
+    file delete $filename
+!* variableSubst true
+!* commandSubst false
+} -returnCodes ok -result [join $resultList \n]
+!* commandSubst true
+
+! }
+
+$footer
