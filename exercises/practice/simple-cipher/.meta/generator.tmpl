@@ -1,0 +1,81 @@
+!* variableSubst true
+!* commandSubst true
+$header
+
+! set i 0
+! foreach case $cases {
+!   set test_id "${slug}-[incr i]"
+!   if {$i > 1} {
+skip $test_id
+!   }
+test $test_id [testTitle $case] -body {
+!   if {[dict exists $case input key]} {
+!       set key [tclString [dict get $case input key]]
+!* commandSubst false
+    set cipher [SimpleCipher new $key]
+!* commandSubst true
+!       if {[dict get $case property] eq "encode"} {
+!* variableSubst false
+    $cipher encode [tclString [dict get $case input plaintext]]
+!* variableSubst true
+!       } elseif {[dict getdef $case input ciphertext ""] eq "cipher.encode"} {
+!           set cmd [format {$cipher decode [$cipher encode %s]} [tclString [dict get $case input plaintext]]]
+    $cmd
+!       } else {
+!* variableSubst false
+    $cipher decode [tclString [dict get $case input ciphertext]]
+!* variableSubst true
+!       }
+} -returnCodes ok -result [tclString [dict get $case expected]]
+
+!   } elseif {[llength [dict get $case input]] == 0} {
+!* commandSubst false
+    set cipher [SimpleCipher new]
+!* variableSubst false
+    $cipher key
+} -returnCodes ok -match regexp -result {^[a-z]+$}
+!* commandSubst true
+!* variableSubst true
+
+!   } elseif {[dict exists $case input plaintext] && [dict exists $case input ciphertext]} {
+!       set input [tclString [dict get $case input plaintext]]
+!* commandSubst false
+    set cipher [SimpleCipher new]
+    set plaintext $input
+!* variableSubst false
+    set roundtrip [$cipher decode [$cipher encode $plaintext]]
+    expr {$plaintext eq $roundtrip}
+} -returnCodes ok -match boolean -result true
+!* commandSubst true
+!* variableSubst true
+
+!   } elseif {[dict exists $case input plaintext]} {
+!       set input [tclString [dict get $case input plaintext]]
+!* commandSubst false
+    set cipher [SimpleCipher new]
+    set plaintext $input
+!* variableSubst false
+    set expected [string range [$cipher key] 0 [string length $plaintext]-1]
+    set actual [$cipher encode $plaintext]
+    expr {$actual eq $expected}
+} -returnCodes ok -match boolean -result true
+!* commandSubst true
+!* variableSubst true
+
+!   } else {
+!       set exp [tclString [dict get $case expected]]
+!* commandSubst false
+    set cipher [SimpleCipher new]
+    set expected $exp
+!* variableSubst false
+    set plaintext [string range [$cipher key] 0 [string length $expected]-1]
+    set actual [$cipher decode $plaintext]
+    expr {$actual eq $expected}
+} -returnCodes ok -match boolean -result true
+!* commandSubst true
+!* variableSubst true
+
+!   }
+! }
+
+$footer
