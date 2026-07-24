@@ -1,0 +1,28 @@
+!* variableSubst true
+!* commandSubst true
+$header
+
+! set i 0
+! foreach case $cases {
+!   set test_id "${slug}-[incr i]"
+!   if {$i > 1} {
+skip $test_id
+!   }
+test $test_id [testTitle $case] \
+!   if {[llength [dict get $case expected]] == 1} {
+    -body { verse [dict get $case input startVerse] } \
+    -returnCodes ok \
+    -result [tclString [lindex [dict get $case expected] 0]]
+
+!   } else {
+!       set lines [asList [dict get $case expected] -strings y -multiline y -indent 2]
+    -body { sing [dict get $case input startVerse] [dict get $case input endVerse] } \
+    -returnCodes ok \
+!* commandSubst false
+    -result [join $lines \n]
+!* commandSubst true
+
+!   }
+! }
+
+$footer
