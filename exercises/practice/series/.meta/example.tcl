@@ -9,8 +9,10 @@ proc slices {series length} {
     if {$length > $serieslen} {
         error "slice length cannot be greater than series length"
     }
-    if {$length <= 0} {
-        error "slice length cannot be less than one"
+    if {$length < 0} {
+        error "slice length cannot be negative"
+    } elseif {$length == 0} {
+        error "slice length cannot be zero"
     }
 
     set delta [expr {$length - 1}]

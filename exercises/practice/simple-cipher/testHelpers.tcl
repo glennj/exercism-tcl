@@ -18,3 +18,22 @@ proc cleanupTests {} {
     uplevel 1 ::tcltest::cleanupTests
     if {$failed} then {exit 1}
 }
+
+# Since Tcl boolean values can be more than just 0/1...
+#   set a yes; set b true
+#   expr  {$a == $b}     ;# => 0
+#   expr  {$a && $b}     ;# => 1
+#   expr  {!!$a == !!$b} ;# => 1
+#   set a off; set b no
+#   expr {$a == $b}      ;# => 0
+#   expr {$a && $b}      ;# => 0
+#   expr {!!$a == !!$b}  ;# => 1
+#
+proc booleanMatch {expected actual} {
+    return [expr {
+        [string is boolean -strict $expected] &&
+        [string is boolean -strict $actual] &&
+        !!$expected == !!$actual
+    }]
+}
+customMatch boolean booleanMatch
