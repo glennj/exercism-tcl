@@ -1,0 +1,142 @@
+!* variableSubst true
+!* commandSubst true
+$header
+
+############################################################
+# Mock the builtin `clock` command to be able to simulate
+# the passage of time.
+
+rename clock tcl_clock
+!* variableSubst false
+!* commandSubst false
+namespace eval clock {
+    variable epoch 0
+
+    set clock_ensemble [namespace ensemble configure ::tcl_clock -map]
+
+    dict set clock_ensemble advance [namespace current]::advance
+    dict set clock_ensemble seconds [namespace current]::seconds
+
+    namespace ensemble create -map $clock_ensemble
+
+    proc advance {timestamp} {
+        scan $timestamp {%d:%d:%d} h m s
+        set duration [expr {$h * 3600 + $m * 60 + $s}]
+
+        variable epoch
+        incr epoch $duration
+    }
+
+    proc seconds {} {
+        variable epoch
+        return $epoch
+    }
+}
+!* variableSubst true
+!* commandSubst true
+############################################################
+
+! set i 0
+! foreach case $cases {
+!   set test_id "${slug}-[incr i]"
+!   if {$i > 1} {
+skip $test_id
+!   }
+test $test_id [testTitle $case] -body {
+!   set count [llength [dict get $case input commands]]
+!   set saved [list]
+!   set j 0
+!   foreach cmd [dict get $case input commands] {
+!       incr j
+!       switch -regexp [dict get $cmd command] {
+!           "new" {
+!* commandSubst false
+    set stopwatch [Stopwatch new]
+!* commandSubst true
+!           }
+!           "state" {
+!* variableSubst false
+    $stopwatch [dict get $cmd command]
+!* variableSubst true
+} -returnCodes ok -result [tclString [dict get $cmd expected]]
+
+!           }
+!           "currentLap" {
+!               if {$j == $count && ![dict exists $saved current]} {
+!* variableSubst false
+    $stopwatch currentLap
+!* variableSubst true
+} -returnCodes ok -result [asList [dict get $cmd expected]]
+
+!               } else {
+!                   dict lappend saved current [dict get $cmd expected]
+!* commandSubst false
+!* variableSubst false
+    dict lappend saved current [$stopwatch currentLap]
+!* commandSubst true
+!* variableSubst true
+!               }
+!           }
+!           "previousLaps" {
+!               if {$j == $count && ![dict exists $saved previous]} {
+!* variableSubst false
+    $stopwatch previousLaps
+!* variableSubst true
+} -returnCodes ok -result [asList [dict get $cmd expected]]
+
+!               } else {
+!                   dict lappend saved previous [dict get $cmd expected]
+!* commandSubst false
+!* variableSubst false
+    dict lappend saved previous [$stopwatch previousLaps]
+!* commandSubst true
+!* variableSubst true
+!               }
+!           }
+!           "total" {
+!               if {$j == $count && ![dict exists $saved total]} {
+!* variableSubst false
+    $stopwatch total
+!* variableSubst true
+} -returnCodes ok -result [asList [dict get $cmd expected]]
+
+!               } else {
+!                   dict lappend saved total [dict get $cmd expected]
+!* commandSubst false
+!* variableSubst false
+    dict lappend saved total [$stopwatch total]
+!* commandSubst true
+!* variableSubst true
+!               }
+!           }
+!           "start|stop|lap|reset" {
+!* variableSubst false
+    $stopwatch [dict get $cmd command]
+!* variableSubst true
+!               if {[dict exists $cmd expected error]} {
+} -returnCodes error -result [tclString [dict get $cmd expected error]]
+
+!               }
+!           }
+!           "advanceTime" {
+!* variableSubst false
+    clock advance [tclString [dict get $cmd by]]
+!* variableSubst true
+!           }
+!       }
+!   }
+!# dump saved stuff
+!   if {[dict size $saved] > 0} {
+    set saved
+} -setup {
+    set saved {}
+} -returnCodes ok -match dictionary -result {
+!       foreach key [lsort [dict keys $saved]] {
+    $key [asList [dict get $saved $key]]
+!       }
+}
+
+!   }
+! }
+
+$footer
